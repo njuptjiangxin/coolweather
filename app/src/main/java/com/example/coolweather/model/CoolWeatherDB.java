@@ -61,10 +61,10 @@ public class CoolWeatherDB
             db.execSQL("insert into t_city(city_name,city_code,province_id) values(?,?,?)",
                     new String[]{city.getCityName(),city.getCityCode(),city.getProvinceId()+""});
     }
-    public List<City> loadCities(int provinId)
+    public List<City> loadCities(int provinceId)
     {
         List<City> cityList=new ArrayList<City>();
-        Cursor cursor=db.rawQuery("select * from t_city where province_id="+provinId,null);
+        Cursor cursor=db.rawQuery("select * from t_city where province_id="+provinceId,null);
         if (cursor!=null)
         {
             int cityIdIndex=cursor.getColumnIndex("id");
@@ -76,7 +76,7 @@ public class CoolWeatherDB
                 city.setId(cursor.getInt(cityIdIndex));
                 city.setCityName(cursor.getString(cityNameIndex));
                 city.setCityCode(cursor.getString(cityCodeIndex));
-                city.setProvinceId(provinId);
+                city.setProvinceId(provinceId);
                 cityList.add(city);
             }
         }
@@ -85,16 +85,16 @@ public class CoolWeatherDB
     public void saveCounty(County county)
     {
         if (county!=null)
-            db.execSQL("insert into t_county(county_name,county_code,county_cityId values(?,?,?))",
+            db.execSQL("insert into t_county(county_name,county_code,city_id) values(?,?,?)",
                     new String[]{county.getCountyName(),county.getCountyCode(),county.getCityId()+""});
     }
-    public List<County> loadcounties(int cityId)
+    public List<County> loadCounties(int cityId)
     {
         List<County> countyList=new ArrayList<County>();
         Cursor cursor=db.rawQuery("select * from t_county where city_id="+cityId,null);
         if (cursor!=null)
         {
-            int countyIdIndex=cursor.getColumnIndex("county_id");
+            int countyIdIndex=cursor.getColumnIndex("id");
             int countyNameIndex=cursor.getColumnIndex("county_name");
             int countyCodeIndex=cursor.getColumnIndex("county_code");
             for (cursor.moveToFirst();!cursor.isAfterLast();cursor.moveToNext())
