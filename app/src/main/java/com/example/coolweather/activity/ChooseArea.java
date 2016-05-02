@@ -1,6 +1,8 @@
 package com.example.coolweather.activity;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -27,7 +29,7 @@ import java.util.List;
 /**
  * Created by lenovo on 2016/5/1.
  */
-public class ChooseArewa extends AppCompatActivity
+public class ChooseArea extends AppCompatActivity
 {
     private static final int LEVEL_PROVINCE=0;
     private static final int LEVEL_CITY=1;
@@ -42,6 +44,7 @@ public class ChooseArewa extends AppCompatActivity
     private List<County> countyList;
     private Province selectedProvince;
     private City selectedCity;
+    private boolean fromWeatherInformation;
 //    private County selectedCounty;
     private int currentLevel;
     private ProgressDialog progressDialog=null;
@@ -51,6 +54,15 @@ public class ChooseArewa extends AppCompatActivity
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.choose_area);
+        fromWeatherInformation=getIntent().getBooleanExtra("fromWeatherInformation",false);
+        SharedPreferences sp=getSharedPreferences("weatherInfo",MODE_PRIVATE);
+        if (sp.getBoolean("county_selected",false)&&!fromWeatherInformation)
+        {
+            Intent intent=new Intent(this,WeatherInformation.class);
+            startActivity(intent);
+            finish();
+            return;
+        }
         titleText=(TextView) findViewById(R.id.title_text);
         listView=(ListView) findViewById(R.id.list_view);
         coolWeatherDB=CoolWeatherDB.getInstance(this);
@@ -70,6 +82,14 @@ public class ChooseArewa extends AppCompatActivity
                 {
                     selectedCity = cityList.get(position);
                     queryCounties();
+                }
+                else if (currentLevel==LEVEL_COUNTY)
+                {
+                    String countyCode=countyList.get(position).getCountyCode();
+                    Intent intent=new Intent(ChooseArea.this,WeatherInformation.class);
+                    intent.putExtra("countyCode",countyCode);
+                    startActivity(intent);
+                    finish();
                 }
             }
         });
@@ -173,7 +193,7 @@ public class ChooseArewa extends AppCompatActivity
                     public void run()
                     {
                         closeProgressDialog();
-                        Toast.makeText(ChooseArewa.this, "Loading Failed", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(ChooseArea.this, "Loading Failed", Toast.LENGTH_SHORT).show();
                     }
                 });
 
@@ -203,6 +223,11 @@ public class ChooseArewa extends AppCompatActivity
             queryCities();
         else if (currentLevel==LEVEL_CITY)
             queryProvinces();
+        else if (fromWeatherInformation)
+        {
+            Intent intent=new Intent(this,WeatherInformation.class);
+            startActivity(intent);
+        }
         else if (currentLevel==LEVEL_PROVINCE)
             finish();
     }

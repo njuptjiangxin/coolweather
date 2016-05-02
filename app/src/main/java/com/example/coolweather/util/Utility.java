@@ -1,11 +1,16 @@
 package com.example.coolweather.util;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.text.TextUtils;
+import android.widget.Toast;
 
 import com.example.coolweather.model.City;
 import com.example.coolweather.model.CoolWeatherDB;
 import com.example.coolweather.model.County;
 import com.example.coolweather.model.Province;
+
+import org.json.JSONObject;
 
 /**
  * Created by lenovo on 2016/5/1.
@@ -73,6 +78,43 @@ public class Utility
             }
         }
         return false;
+    }
+    public static void handleWeatherResponse(Context context,String response)
+    {
+        if (!TextUtils.isEmpty(response))
+        {
+            try
+            {
+                JSONObject jsonObject=new JSONObject(response);
+                JSONObject weatherInfo=jsonObject.getJSONObject("weatherinfo");
+                String countyName=weatherInfo.getString("city");
+                String weatherCode=weatherInfo.getString("cityid");
+                String temp1=weatherInfo.getString("temp1");
+                String temp2=weatherInfo.getString("temp2");
+                String dec=weatherInfo.getString("weather");
+                String publishTime=weatherInfo.getString("ptime");
+                saveWeatherInfo(context,countyName,weatherCode,temp1,temp2,dec,publishTime);
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+        }
+        else
+            Toast.makeText(context, "weatherResponse is null", Toast.LENGTH_SHORT).show();
+    }
+    private static void saveWeatherInfo(Context context,String countyName, String weatherCode, String temp1, String temp2, String dec, String ptime)
+    {
+        SharedPreferences sp=context.getSharedPreferences("weatherInfo",Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor=sp.edit();
+        editor.putBoolean("county_selected",true);
+        editor.putString("countyName",countyName);
+        editor.putString("weatherCode",weatherCode);
+        editor.putString("temp1",temp1);
+        editor.putString("temp2",temp2);
+        editor.putString("dec",dec);
+        editor.putString("publishTime",ptime);
+        editor.commit();
     }
 }
 
