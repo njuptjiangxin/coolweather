@@ -9,9 +9,9 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.coolweather.R;
+import com.example.coolweather.service.AutoUpdateService;
 import com.example.coolweather.util.HttpCallBackListener;
 import com.example.coolweather.util.HttpUtil;
 import com.example.coolweather.util.Utility;
@@ -47,8 +47,9 @@ public class WeatherInformation extends AppCompatActivity
         }
         else
         {
-            Toast.makeText(WeatherInformation.this, "CountyCode is null", Toast.LENGTH_SHORT).show();
+            queryWeatherInfo(getSharedPreferences("weatherInfo",MODE_PRIVATE).getString("cityid",""));
         }
+
     }
     private View.OnClickListener myListener=new View.OnClickListener() {
         @Override
@@ -76,7 +77,7 @@ public class WeatherInformation extends AppCompatActivity
     };
     private void queryWeatherCode(String countyCode)
     {
-        Toast.makeText(WeatherInformation.this, "countyCode is:"+countyCode, Toast.LENGTH_SHORT).show();
+//        Toast.makeText(WeatherInformation.this, "countyCode is:"+countyCode, Toast.LENGTH_SHORT).show();
         String address="http://www.weather.com.cn/data/list3/city"+countyCode+".xml";
         queryFromServer(address,"countyCode");
     }
@@ -143,5 +144,7 @@ public class WeatherInformation extends AppCompatActivity
         publishTimeText.setText(ptime+"  published");
         descriptionText.setText(dec);
         tempText.setText(temp1+"~"+temp2);
+        Intent intent=new Intent(this, AutoUpdateService.class);
+        startService(intent);
     }
 }
